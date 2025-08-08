@@ -1,14 +1,17 @@
 import './App.css';
-import { Button } from './components/ui/button';
-
+import { AppSidebar } from './components/AppSidebar';
+import { LayoutPage } from './pages/LayoutPage';
 
 function App() {
-
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button className="cursor-pointer">Click me</Button>
+    <div>
+      <AppSidebar>
+        <div>
+          <LayoutPage/>
+        </div>
+      </AppSidebar>
     </div>
-  )
+  );
 }
 
 export default App;
