@@ -1,7 +1,7 @@
 import { AppTodoList } from "@/components/AppTodoList"
 import useTodoStore from "@/store/useTodoStore"
 
-export function TodoPage(){
+export function TasksPage(){
     const todos = useTodoStore((state) => state.todos)
     return (
         <div>

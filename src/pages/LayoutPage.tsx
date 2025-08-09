@@ -1,7 +1,7 @@
-import { TodoPage } from "./TodoPage";
+import { Outlet } from "react-router";
 
 export function LayoutPage(){
     return (
-        <TodoPage/>
+        <Outlet/>
     )
 }

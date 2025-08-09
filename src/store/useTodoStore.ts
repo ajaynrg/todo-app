@@ -2,13 +2,17 @@ import { create } from 'zustand';
 
 export interface Todo {
   id: number;
+  priority: Priority;
   text: string;
+  date: Date;
   completed: boolean;
 }
 
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
+
 interface TodoStore {
   todos: Todo[],
-  addTodo: (text: string) => void,
+  addTodo: (text: string, date: Date, priority: Priority) => void,
   toggleTodo: (id: number) => void,
   deleteTodo: (id: number) => void,
   clearTodos: () => void,
@@ -16,13 +20,16 @@ interface TodoStore {
 
 const useTodoStore = create<TodoStore>((set) => ({
         todos: [
-            { id: 1, text: "Buy groceries", completed: false },
-            { id: 2, text: "Walk the dog", completed: true },
-            { id: 3, text: "Read a book", completed: false },
+            { id: 1, text: "Buy groceries", date: new Date(), completed: false, priority: "MEDIUM" },
+            { id: 2, text: "Walk the dog", date: new Date(), completed: true, priority: "LOW" },
+            { id: 3, text: "Read a book", date: new Date(), completed: false, priority: "HIGH" },
         ],
-        addTodo: (text: string) => {
+        addTodo: (text: string, date: Date, priority: Priority) => {
             set((state) => ({
-                todos: [...state.todos, { id: state.todos.length + 1, text, completed: false }],
+                todos: [
+                    ...state.todos,
+                    { id: state.todos.length + 1, text, date, completed: false, priority }
+                ],
             }));
         },
         toggleTodo: (id: number) => {

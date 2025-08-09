@@ -10,7 +10,8 @@ import {
     SidebarMenuItem,
     SidebarProvider,
     SidebarTrigger
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { useNavigate } from "react-router";
   
 
 const items = [
@@ -23,11 +24,22 @@ const items = [
         url: "#"
     },
     {
+        title: "Upcoming",
+        url: "#"
+    },
+    {
         title: "Completed",
         url: "#"
     }
 ]
+
 export function AppSidebar({children}: {children: React.ReactNode}) {
+    const navigate = useNavigate()
+
+    const onMenuItemClick = (title:string) => {
+        navigate(title);
+    }
+    
     return (
         <SidebarProvider>
             <Sidebar>
@@ -42,7 +54,10 @@ export function AppSidebar({children}: {children: React.ReactNode}) {
                     <SidebarMenu className="p-5">
                         {items.map((item) => (
                             <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton className="cursor-pointer hover:bg-gray-200">
+                                <SidebarMenuButton 
+                                    className="cursor-pointer hover:bg-gray-200"
+                                    onClick={()=> onMenuItemClick(item.title.toLowerCase())}
+                                >
                                     {item.title}
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
