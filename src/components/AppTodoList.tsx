@@ -1,8 +1,9 @@
 import type { Priority, Todo } from "@/store/useTodoStore";
-import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronsUpDown, ChevronUp, Search, X } from "lucide-react";
 import { useState } from "react";
 import { AppTodoItem } from "./AppTodoItem";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import {
     Pagination,
     PaginationContent,
@@ -26,6 +27,7 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortColumn, setSortColumn] = useState<SortColumn>('none');
     const [sortDirection, setSortDirection] = useState<SortDirection>('none');
+    const [searchQuery, setSearchQuery] = useState('');
     
     // Priority order for sorting (HIGH > MEDIUM > LOW)
     const priorityOrder: Record<Priority, number> = {
@@ -34,8 +36,20 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
         'LOW': 1
     };
     
-    // Sort todos based on selected column
-    const sortedTodos = [...todoList].sort((a, b) => {
+    // Filter todos based on search query
+    const filteredTodos = todoList.filter(todo => {
+        if (!searchQuery.trim()) return true;
+        
+        const query = searchQuery.toLowerCase();
+        return (
+            todo.text.toLowerCase().includes(query) ||
+            todo.priority.toLowerCase().includes(query) ||
+            todo.id.toString().includes(query)
+        );
+    });
+
+    // Sort filtered todos based on selected column
+    const sortedTodos = [...filteredTodos].sort((a, b) => {
         if (sortColumn === 'none' || sortDirection === 'none') return 0;
         
         if (sortColumn === 'priority') {
@@ -143,6 +157,16 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
         setSortDirection(newDirection);
         setCurrentPage(1); // Reset to first page when sorting changes
     };
+
+    const handleSearch = (value: string) => {
+        setSearchQuery(value);
+        setCurrentPage(1); // Reset to first page when search changes
+    };
+
+    const clearSearch = () => {
+        setSearchQuery('');
+        setCurrentPage(1);
+    };
     
     const getSortIcon = (column: SortColumn) => {
         if (sortColumn !== column || sortDirection === 'none') {
@@ -158,6 +182,34 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
     
     return (
         <div className="space-y-4">
+            {/* Search Input */}
+            <div className="flex items-center space-x-2">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                        placeholder="Search todos..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="pl-10 pr-10"
+                    />
+                    {searchQuery && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearSearch}
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-muted"
+                        >
+                            <X className="w-4 h-4" />
+                        </Button>
+                    )}
+                </div>
+                {searchQuery && (
+                    <div className="text-sm text-muted-foreground">
+                        {filteredTodos.length} of {todoList.length} todos
+                    </div>
+                )}
+            </div>
+
             {/* Table */}
             <Table>
                 <TableHeader>
@@ -198,6 +250,11 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
             <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div>
                     Showing {startIndex + 1} to {Math.min(endIndex, sortedTodos.length)} of {sortedTodos.length} todos
+                    {searchQuery && (
+                        <span className="ml-2 text-green-600 dark:text-green-400">
+                            (filtered from {todoList.length} total)
+                        </span>
+                    )}
                     {sortColumn !== 'none' && sortDirection !== 'none' && (
                         <span className="ml-2 text-blue-600 dark:text-blue-400">
                             (sorted by {sortColumn === 'priority' ? 'priority' : 'end date'}: {
