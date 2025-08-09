@@ -1,6 +1,8 @@
-import type { Todo } from "@/store/useTodoStore";
+import type { Priority, Todo } from "@/store/useTodoStore";
+import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { AppTodoItem } from "./AppTodoItem";
+import { Button } from "./ui/button";
 import {
     Pagination,
     PaginationContent,
@@ -17,14 +19,53 @@ interface AppTodoListProps {
     itemsPerPage?: number;
 }
 
+type SortDirection = 'asc' | 'desc' | 'none';
+type SortColumn = 'priority' | 'endDate' | 'none';
+
 export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
     const [currentPage, setCurrentPage] = useState(1);
+    const [sortColumn, setSortColumn] = useState<SortColumn>('none');
+    const [sortDirection, setSortDirection] = useState<SortDirection>('none');
+    
+    // Priority order for sorting (HIGH > MEDIUM > LOW)
+    const priorityOrder: Record<Priority, number> = {
+        'HIGH': 3,
+        'MEDIUM': 2,
+        'LOW': 1
+    };
+    
+    // Sort todos based on selected column
+    const sortedTodos = [...todoList].sort((a, b) => {
+        if (sortColumn === 'none' || sortDirection === 'none') return 0;
+        
+        if (sortColumn === 'priority') {
+            const aValue = priorityOrder[a.priority];
+            const bValue = priorityOrder[b.priority];
+            
+            if (sortDirection === 'desc') {
+                return bValue - aValue; // HIGH to LOW
+            } else {
+                return aValue - bValue; // LOW to HIGH
+            }
+        } else if (sortColumn === 'endDate') {
+            const aDate = new Date(a.endDate).getTime();
+            const bDate = new Date(b.endDate).getTime();
+            
+            if (sortDirection === 'desc') {
+                return bDate - aDate; // Latest to Earliest
+            } else {
+                return aDate - bDate; // Earliest to Latest
+            }
+        }
+        
+        return 0;
+    });
     
     // Calculate pagination
-    const totalPages = Math.ceil(todoList.length / itemsPerPage);
+    const totalPages = Math.ceil(sortedTodos.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentTodos = todoList.slice(startIndex, endIndex);
+    const currentTodos = sortedTodos.slice(startIndex, endIndex);
     
     // Generate page numbers for pagination
     const getPageNumbers = () => {
@@ -61,6 +102,42 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
         }
     };
     
+    const handleSort = (column: SortColumn) => {
+        let newDirection: SortDirection;
+        
+        if (sortColumn !== column) {
+            // Switching to a new column, start with desc
+            newDirection = 'desc';
+        } else {
+            // Same column, cycle through directions
+            if (sortDirection === 'none') {
+                newDirection = 'desc';
+            } else if (sortDirection === 'desc') {
+                newDirection = 'asc';
+            } else {
+                newDirection = 'none';
+            }
+        }
+        
+        if (newDirection === 'none') {
+            setSortColumn('none');
+        } else {
+            setSortColumn(column);
+        }
+        setSortDirection(newDirection);
+        setCurrentPage(1); // Reset to first page when sorting changes
+    };
+    
+    const getSortIcon = (column: SortColumn) => {
+        if (sortColumn !== column || sortDirection === 'none') {
+            return <ChevronsUpDown className="w-4 h-4" />;
+        } else if (sortDirection === 'desc') {
+            return <ChevronDown className="w-4 h-4" />;
+        } else {
+            return <ChevronUp className="w-4 h-4" />;
+        }
+    };
+    
     const pageNumbers = getPageNumbers();
     
     return (
@@ -70,9 +147,27 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
                 <TableHeader>
                     <TableRow className="font-bold">
                         <TableCell className="min-w-32">ID</TableCell>
-                        <TableCell className="min-w-32">Priority</TableCell>
+                        <TableCell className="min-w-32">
+                            <Button
+                                variant="ghost"
+                                onClick={() => handleSort('priority')}
+                                className="h-auto p-0 font-bold hover:bg-transparent flex items-center gap-2"
+                            >
+                                Priority
+                                {getSortIcon('priority')}
+                            </Button>
+                        </TableCell>
                         <TableCell className="w-[25rem]">Task</TableCell>
-                        <TableCell>End Date</TableCell>
+                        <TableCell>
+                            <Button
+                                variant="ghost"
+                                onClick={() => handleSort('endDate')}
+                                className="h-auto p-0 font-bold hover:bg-transparent flex items-center gap-2"
+                            >
+                                End Date
+                                {getSortIcon('endDate')}
+                            </Button>
+                        </TableCell>
                         <TableCell className="min-w-10">Complete</TableCell>
                     </TableRow>
                 </TableHeader>
@@ -86,7 +181,16 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
             {/* Pagination Info */}
             <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div>
-                    Showing {startIndex + 1} to {Math.min(endIndex, todoList.length)} of {todoList.length} todos
+                    Showing {startIndex + 1} to {Math.min(endIndex, sortedTodos.length)} of {sortedTodos.length} todos
+                    {sortColumn !== 'none' && sortDirection !== 'none' && (
+                        <span className="ml-2 text-blue-600 dark:text-blue-400">
+                            (sorted by {sortColumn === 'priority' ? 'priority' : 'end date'}: {
+                                sortColumn === 'priority' 
+                                    ? (sortDirection === 'desc' ? 'HIGH → LOW' : 'LOW → HIGH')
+                                    : (sortDirection === 'desc' ? 'Latest → Earliest' : 'Earliest → Latest')
+                            })
+                        </span>
+                    )}
                 </div>
                 <div>
                     Page {currentPage} of {totalPages}
