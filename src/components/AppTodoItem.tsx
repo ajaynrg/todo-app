@@ -15,6 +15,7 @@ export function AppTodoItem({todoItem}: {todoItem:Todo}){
                 <Checkbox 
                     checked={todoItem.completed}
                     onCheckedChange={() => toggleTodo(todoItem.id)}
+                    disabled={todoItem.completed}
                 />
             </TableCell>
         </TableRow>
