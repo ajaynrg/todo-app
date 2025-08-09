@@ -68,31 +68,47 @@ export function AppTodoList({ todoList, itemsPerPage = 10 }: AppTodoListProps) {
     const currentTodos = sortedTodos.slice(startIndex, endIndex);
     
     // Generate page numbers for pagination
+    /**
+     * Returns an array of page numbers to display in the pagination component.
+     * 
+     * - If the total number of pages is less than or equal to the maximum number of visible pages (5),
+     *   it returns all page numbers from 1 to totalPages.
+     * - If there are more pages than can be shown at once, it centers the visible page numbers around
+     *   the current page, showing up to 5 pages at a time.
+     * - When near the start or end, it adjusts so the first or last 5 pages are shown, respectively.
+     * 
+     * Example:
+     *   totalPages = 10, currentPage = 6
+     *   => returns [4, 5, 6, 7, 8]
+     */
     const getPageNumbers = () => {
         const pages = [];
         const maxVisiblePages = 5;
-        
+
         if (totalPages <= maxVisiblePages) {
+            // Show all pages if total pages fit within maxVisiblePages
             for (let i = 1; i <= totalPages; i++) {
                 pages.push(i);
             }
         } else {
+            // Center the visible pages around the current page
             const halfVisible = Math.floor(maxVisiblePages / 2);
             let startPage = Math.max(1, currentPage - halfVisible);
             let endPage = Math.min(totalPages, currentPage + halfVisible);
-            
+
+            // Adjust if near the start
             if (currentPage <= halfVisible) {
                 endPage = maxVisiblePages;
             }
+            // Adjust if near the end
             if (currentPage + halfVisible >= totalPages) {
                 startPage = totalPages - maxVisiblePages + 1;
             }
-            
+
             for (let i = startPage; i <= endPage; i++) {
                 pages.push(i);
             }
         }
-        
         return pages;
     };
     
