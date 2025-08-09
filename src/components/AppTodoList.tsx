@@ -7,10 +7,10 @@ export function AppTodoList({todoList}: {todoList: Todo[]}){
         <Table >
             <TableHeader>
                 <TableRow className="font-bold">
-                    <TableCell className="min-w-10">ID</TableCell>
+                    <TableCell className="min-w-32">ID</TableCell>
                     <TableCell className="min-w-32">Priority</TableCell>
-                    <TableCell className="w-[10rem]">Task</TableCell>
-                    <TableCell>Date</TableCell>
+                    <TableCell className="w-[25rem]">Task</TableCell>
+                    <TableCell>End Date</TableCell>
                     <TableCell className="min-w-10">Complete</TableCell>
                 </TableRow>
             </TableHeader>

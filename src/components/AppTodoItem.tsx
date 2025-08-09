@@ -10,7 +10,7 @@ export function AppTodoItem({todoItem}: {todoItem:Todo}){
             <TableCell>{todoItem.id}</TableCell>
             <TableCell>{todoItem.priority}</TableCell>
             <TableCell>{todoItem.text}</TableCell>
-            <TableCell>{todoItem.date.toDateString()}</TableCell>
+            <TableCell>{todoItem.endDate.toDateString()}</TableCell>
             <TableCell>
                 <Checkbox 
                     checked={todoItem.completed}

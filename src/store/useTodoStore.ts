@@ -1,10 +1,11 @@
+import { allTodos } from '@/test/todoDummy';
 import { create } from 'zustand';
 
 export interface Todo {
   id: number;
   priority: Priority;
   text: string;
-  date: Date;
+  endDate: Date;
   completed: boolean;
 }
 
@@ -19,16 +20,12 @@ interface TodoStore {
 }
 
 const useTodoStore = create<TodoStore>((set) => ({
-        todos: [
-            { id: 1, text: "Buy groceries", date: new Date(), completed: false, priority: "MEDIUM" },
-            { id: 2, text: "Walk the dog", date: new Date(), completed: true, priority: "LOW" },
-            { id: 3, text: "Read a book", date: new Date(), completed: false, priority: "HIGH" },
-        ],
-        addTodo: (text: string, date: Date, priority: Priority) => {
+        todos: allTodos,
+        addTodo: (text: string, endDate: Date, priority: Priority) => {
             set((state) => ({
                 todos: [
                     ...state.todos,
-                    { id: state.todos.length + 1, text, date, completed: false, priority }
+                    { id: state.todos.length + 1, text, endDate, completed: false, priority }
                 ],
             }));
         },
