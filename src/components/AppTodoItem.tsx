@@ -4,7 +4,12 @@ import { Checkbox } from "./ui/checkbox";
 import { TableCell, TableRow } from "./ui/table";
 
 export function AppTodoItem({todoItem}: {todoItem:Todo}){
-    const toggleTodo = useTodoStore((state) => state.toggleTodo)
+    const toggleTodo = useTodoStore((state) => state.toggleTodo);
+    const taskCompleted = (todoItem: Todo)=>{
+        setTimeout(()=>{
+            toggleTodo(todoItem.id);
+        }, 0)
+    }
     return (
         <TableRow>
             <TableCell>{todoItem.id}</TableCell>
@@ -15,8 +20,7 @@ export function AppTodoItem({todoItem}: {todoItem:Todo}){
                 <Checkbox 
                     className="cursor-pointer"
                     checked={todoItem.completed}
-                    onCheckedChange={() => {toggleTodo(todoItem.id);}}
-                    disabled={todoItem.completed}
+                    onCheckedChange={() => {taskCompleted(todoItem);}}
                 />
             </TableCell>
         </TableRow>
